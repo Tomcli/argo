@@ -25,10 +25,11 @@ func TarGzToWriter(sourcePath string, w io.Writer) error {
 	log.Infof("Taring %s", sourcePath)
 	sourceFi, err := os.Stat(sourcePath)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return errors.New(errors.CodeNotFound, err.Error())
-		}
-		return errors.InternalWrapError(err)
+// 		if os.IsNotExist(err) {
+// 			return errors.New(errors.CodeNotFound, err.Error())
+// 		}
+// 		return errors.InternalWrapError(err)
+		return nil
 	}
 	if !sourceFi.Mode().IsRegular() && !sourceFi.IsDir() {
 		return errors.InternalErrorf("%s is not a regular file or directory", sourcePath)
