@@ -258,10 +258,12 @@ func (woc *wfOperationCtx) newInitContainer(tmpl *wfv1.Template) apiv1.Container
 
 func (woc *wfOperationCtx) newWaitContainer(tmpl *wfv1.Template) (*apiv1.Container, error) {
 	ctr := woc.newExecContainer(common.WaitContainerName)
+	privileged := true
 	ctr.Command = []string{"argoexec", "wait"}
 	switch woc.controller.Config.ContainerRuntimeExecutor {
 	case common.ContainerRuntimeExecutorPNS:
 		ctr.SecurityContext = &apiv1.SecurityContext{
+			Privileged: &privileged,
 			Capabilities: &apiv1.Capabilities{
 				Add: []apiv1.Capability{
 					// necessary to access main's root filesystem when run with a different user id
