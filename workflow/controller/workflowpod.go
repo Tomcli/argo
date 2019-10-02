@@ -267,13 +267,22 @@ func (woc *wfOperationCtx) newWaitContainer(tmpl *wfv1.Template) (*apiv1.Contain
 				},
 			},
 		}
-		if hasPrivilegedContainers(tmpl) {
-			// if the main or sidecar is privileged, the wait sidecar must also run privileged,
-			// in order to SIGTERM/SIGKILL the pid
-			ctr.SecurityContext.Privileged = pointer.BoolPtr(true)
-		}
+		// if hasPrivilegedContainers(tmpl) {
+		// 	// if the main or sidecar is privileged, the wait sidecar must also run privileged,
+		// 	// in order to SIGTERM/SIGKILL the pid
+		ctr.SecurityContext.Privileged = pointer.BoolPtr(true)
+		// }
 	case "", common.ContainerRuntimeExecutorDocker:
 		ctr.VolumeMounts = append(ctr.VolumeMounts, volumeMountDockerSock)
+		ctr.SecurityContext = &apiv1.SecurityContext{
+			Capabilities: &apiv1.Capabilities{
+				Add: []apiv1.Capability{
+					// necessary to access main's root filesystem when run with a different user id
+					apiv1.Capability("SYS_PTRACE"),
+				},
+			},
+		}
+		ctr.SecurityContext.Privileged = pointer.BoolPtr(true)
 	}
 	return ctr, nil
 }
